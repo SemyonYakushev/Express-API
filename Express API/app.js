@@ -1,15 +1,11 @@
 const express = require('express');
 const app = express();
 const port = 3000;
+const bodyParser = require('body-parser');
+const users = require('./usersData'); // Импортируем массив пользователей
 
 app.use(express.json());
-
-// Пример базы данных
-let users = [
-    { id: 1, name: 'John' },
-    { id: 2, name: 'Jane' },
-    { id: 3, name: 'Bob' }
-];
+app.use(bodyParser.json());
 
 // Получить список всех пользователей
 app.get('/api/users', (req, res) => {
