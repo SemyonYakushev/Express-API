@@ -1,12 +1,25 @@
 const express = require('express');
 const app = express();
 const port = 3000;
-const bodyParser = require('body-parser');
-const users = require('./usersData'); // Импортируем массив пользователей
 const { Pool } = require('pg');
 
+// Подключение к базе данных PostgreSQL
+const pool = new Pool({
+    user: 'admin',
+    host: '127.0.0.1',
+    database: 'postgres',
+    password: 'root',
+    port: 5432,
+});
+
 app.use(express.json());
-app.use(bodyParser.json());
+
+// Пример базы данных
+let users = [
+    { id: 1, name: 'John' },
+    { id: 2, name: 'Jane' },
+    { id: 3, name: 'Bob' }
+];
 
 // Получить список всех пользователей
 app.get('/api/users', (req, res) => {
@@ -25,35 +38,11 @@ app.get('/api/users/:id', (req, res) => {
     }
 });
 
-// Подключение к базе данных PostgreSQL
-const pool = new Pool({
-    user: 'admin',
-    host: 'admin',
-    database: 'postgresql',
-    password: 'root',
-    port: 5432,
-});
-
-// Разбор тела запроса в формате JSON
-app.use(bodyParser.json());
-
-// Маршрут для создания пользователя
-app.post('/api/users', async (req, res) => {
-    try {
-        // Извлечение данных из запроса
-        const { name, email } = req.body;
-
-        // Выполнение SQL-запроса для создания пользователя
-        const query = 'INSERT INTO users (name, email) VALUES ($1, $2) RETURNING *';
-        const values = [name, email];
-        const result = await pool.query(query, values);
-
-        // Отправка успешного ответа с созданным пользователем
-        res.status(201).json(result.rows[0]);
-    } catch (error) {
-        console.error('Error creating user', error);
-        res.status(500).json({ error: 'Error creating user' });
-    }
+// Добавить нового пользователя
+app.post('/api/users', (req, res) => {
+    const user = req.body;
+    users.push(user);
+    res.status(201).json(user);
 });
 
 // Обновить пользователя по id
